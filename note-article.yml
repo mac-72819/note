@@ -1,0 +1,35 @@
+name: 羅針盤ノート記事 note下書き生成
+
+on:
+  schedule:
+    # 毎週月曜 22:00 UTC = 日本時間 火曜7:00 に実行 (週1本ペース)
+    - cron: "0 22 * * 1"
+  workflow_dispatch:
+    inputs:
+      topic_index:
+        description: "お題を固定したい場合はtopics.pyのTOPIC_POOLの番号(0始まり)"
+        required: false
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存パッケージのインストール
+        run: pip install -r requirements.txt
+
+      - name: 記事生成 & note下書きIssue作成
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTICLE_TOPIC_INDEX: ${{ github.event.inputs.topic_index }}
+        run: python scripts/article/generate_article.py
