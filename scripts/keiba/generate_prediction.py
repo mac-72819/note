@@ -77,6 +77,7 @@ def _target_jra_tracks() -> list[str] | None:
 def analyze_race(race: RaceInfo, *, nar: bool) -> str:
     html = fetch_shutuba_past_html(race.race_id, nar=nar)
     entries = parse_shutuba_past(html)
+    print(f"  -> 出馬表: {len(entries)}頭分取得 (html長={len(html)})")
     if not entries:
         return "（出馬表データを取得できませんでした。手動で確認してください）"
 
@@ -89,7 +90,10 @@ def analyze_race(race: RaceInfo, *, nar: bool) -> str:
 
 上記データをもとに、v4ロジックに従って◎○▲△と根拠を出力してください。
 """
-    return ask_claude(V4_SYSTEM_PROMPT, user_prompt, max_tokens=2000)
+    print(f"  -> プロンプト長={len(user_prompt)}文字")
+    result = ask_claude(V4_SYSTEM_PROMPT, user_prompt, max_tokens=2000)
+    print(f"  -> AI応答長={len(result)}文字")
+    return result
 
 
 def build_loto5_summary(race_analyses: list[dict]) -> str:
