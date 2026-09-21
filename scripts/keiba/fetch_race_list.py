@@ -5,8 +5,11 @@
   - 地方競馬(NAR): nar.netkeiba.com （競馬場ごとに kaisai_id が異なるため2段階で取得）
 
 注意:
+  レース情報の本体は "race_list_sub.html" という別URLからJavaScript経由で
+  読み込まれる仕組みになっているため、race_list.html ではなく race_list_sub.html を
+  直接取得する必要がある(race_list.htmlは外枠だけで中身が空)。
   netkeibaのページ構造は予告なく変更されることがある。取得件数が0件になる場合は
-  まずこのファイルのセレクタ(クラス名)を実際のページと突き合わせて更新すること。
+  まずこのファイルのセレクタ(クラス名)やURL形式を実際のページと突き合わせて更新すること。
   また、GitHub Actionsの実行環境(海外データセンターのIP)からのアクセスが
   弾かれる/CAPTCHA化される可能性がある点は既知のリスクとしてREADMEに明記している。
 """
@@ -108,7 +111,7 @@ def fetch_jra_races(kaisai_date: str, track_names: list[str] | None = None) -> l
     track_names: ["阪神", "中山"] のように競馬場名を指定すると、その競馬場だけに絞り込む。
     Noneまたは空リストの場合は、その日開催している全競馬場を返す。
     """
-    url = f"https://race.netkeiba.com/top/race_list.html?kaisai_date={kaisai_date}"
+    url = f"https://race.netkeiba.com/top/race_list_sub.html?kaisai_date={kaisai_date}"
     html = _get(url)
     races = _parse_race_list_html(html)
     if track_names:
@@ -145,7 +148,7 @@ def fetch_all_nar_races(kaisai_date: str) -> list[RaceInfo]:
 
     all_races: list[RaceInfo] = []
     for track_name, kaisai_id in track_ids.items():
-        url = f"https://nar.netkeiba.com/top/race_list.html?kaisai_id={kaisai_id}&kaisai_date={kaisai_date}"
+        url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_id={kaisai_id}&kaisai_date={kaisai_date}"
         html2 = _get(url)
         all_races += _parse_race_list_html(html2)
     return all_races
@@ -166,7 +169,7 @@ def fetch_nar_races(kaisai_date: str, track_name: str) -> list[RaceInfo]:
         return []
 
     kaisai_id = track_ids[track_name]
-    url = f"https://nar.netkeiba.com/top/race_list.html?kaisai_id={kaisai_id}&kaisai_date={kaisai_date}"
+    url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_id={kaisai_id}&kaisai_date={kaisai_date}"
     html2 = _get(url)
     return _parse_race_list_html(html2)
 
