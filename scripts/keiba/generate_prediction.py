@@ -91,7 +91,7 @@ def analyze_race(race: RaceInfo, *, nar: bool) -> str:
 上記データをもとに、v4ロジックに従って◎○▲△と根拠を出力してください。
 """
     print(f"  -> プロンプト長={len(user_prompt)}文字")
-    result = ask_claude(V4_SYSTEM_PROMPT, user_prompt, max_tokens=2000)
+    result = ask_claude(V4_SYSTEM_PROMPT, user_prompt, max_tokens=8000)
     print(f"  -> AI応答長={len(result)}文字")
     return result
 
@@ -107,7 +107,7 @@ def build_loto5_summary(race_analyses: list[dict]) -> str:
 
 Loto5アルゴリズムv3に従って、購入すべきレース・式別・点数の方針をまとめてください。
 """
-    return ask_claude(LOTO5_SYSTEM_PROMPT, user_prompt, max_tokens=1500)
+    return ask_claude(LOTO5_SYSTEM_PROMPT, user_prompt, max_tokens=4000)
 
 
 def main() -> None:
