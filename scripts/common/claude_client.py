@@ -33,4 +33,11 @@ def ask_claude(system_prompt: str, user_prompt: str, *, max_tokens: int = 4000, 
         system=system_prompt,
         messages=[{"role": "user", "content": user_prompt}],
     )
+    block_types = [b.type for b in response.content]
+    print(
+        f"    [debug] stop_reason={response.stop_reason} "
+        f"blocks={block_types} "
+        f"input_tokens={response.usage.input_tokens} "
+        f"output_tokens={response.usage.output_tokens}"
+    )
     return "".join(block.text for block in response.content if block.type == "text").strip()
