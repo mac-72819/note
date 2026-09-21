@@ -1,0 +1,50 @@
+yaml
+name: 競馬予想 note下書き生成
+
+on:
+  schedule:
+    # 毎日 22:00 UTC = 日本時間 7:00 に実行
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "対象日 (YYYYMMDD, 空欄なら当日)"
+        required: false
+      nar_tracks:
+        description: "対象の地方競馬場を絞り込む場合はカンマ区切りで指定(空欄ならその日の全NAR場 / 'none'でNARを対象外に)"
+        required: false
+      include_jra:
+        description: "JRA中央競馬を対象に含めるか"
+        required: false
+        default: "true"
+        type: boolean
+      jra_tracks:
+        description: "対象のJRA競馬場(カンマ区切り, 例: 阪神 / 空欄なら開催中の全場)"
+        required: false
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存パッケージのインストール
+        run: pip install -r requirements.txt
+
+      - name: 予想生成 & note下書きIssue作成
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KEIBA_TARGET_DATE: ${{ github.event.inputs.target_date }}
+          KEIBA_NAR_TRACKS: ${{ github.event.inputs.nar_tracks }}
+          KEIBA_INCLUDE_JRA: ${{ github.event.inputs.include_jra }}
+          KEIBA_JRA_TRACKS: ${{ github.event.inputs.jra_tracks }}
+        run: python scripts/keiba/generate_prediction.py
